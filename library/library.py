@@ -14,8 +14,39 @@ class Member:
 
 class Library:
     def __init__(self):
-        self.collection = {}
-        self.members = {}
+        self.collection = { 0 : {
+            "name" : "Moby Dick",
+            "author" : "Herman Melville",
+            "year" : "1851",
+            "publisher" : "Macmillan",
+            "isLent" : False
+            }
+            ,
+            1 : {
+            "name" : "Yüzüklerin Efendisi",
+            "author" : "J.R.R. Tolkien",
+            "year" : "1954",
+            "publisher" : "Yapıkredi Yayınları",
+            "isLent" : False
+            }
+        }
+        
+        self.members = {
+            0 : {
+            "name" : "Mehmet",
+            "phoneNumber" : "0555 555 55 55",
+            "email" : "mehmet@yildiz.com",
+            "address" : "Ankara",
+            "booksLent" : []
+            },
+            1 : {
+            "name" : "Ali",
+            "phoneNumber" : "0555 555 55 55",
+            "email" : "ali@yildiz.com",
+            "address" : "Ankara",
+            "booksLent" : []
+            }
+        }
 
     def addBook(self):
 
@@ -33,18 +64,18 @@ class Library:
         print(self.collection)
 
 
-    def removeBook(self,id):
-        if id in self.collection:
-            self.collection.remove(self.collection[int(id)])
-            print(f"{self.collection[id]['name']} adlı kitap silindi")
+    def removeBook(self,bookID):
+        if self.collection[bookID]in self.collection:
+            del self.collection[bookID]
+            print(f"{self.collection[bookID]['name']} adlı kitap silindi")
         else:
-            print(f"Hata: {id} numaralı Kitap bulunamadı.")
+            print(f"Hata: {bookID} numaralı Kitap bulunamadı.")
 
     def addMember(self):
-
+        
         member = Member(input("Ad: "),input("Telefon: "),input("E-posta: "),input("Adres: "))
 
-        self.members[int((len(self.members) - 1) + 1)] = {
+        self.members[len(self.members)+1] = {
             "name" : member.name,
             "phoneNumber" : member.phoneNumber,
             "email" : member.email,
@@ -55,10 +86,10 @@ class Library:
 
 
     def lendBook(self,MemberID,bookID):
-        if self.members[id] in self.members:
-            if self.collection[bookID] in self.collection:
+        if self.members[MemberID]:
+            if self.collection[bookID]:
                 if self.collection[bookID]["isLent"] == False:
-                    self.members[MemberID]["booksLent"].append(self.collection[bookID]["name"])
+                    self.members[MemberID]["booksLent"].append(self.collection[bookID])
                     self.collection[bookID]["isLent"] = True
                     print("Kitap Ödünç verildi")
                 else:
@@ -71,7 +102,7 @@ class Library:
     def returnBook(self,MemberID,bookID):
         if bookID in self.collection:
             if MemberID in self.members:
-                self.members[MemberID]["booksLent"].remove(bookID)
+                self.members[MemberID]["booksLent"].remove(self.collection[bookID])
                 self.collection[bookID]["isLent"] = False
                 print("Kitap iade alındı")
             else:
@@ -79,17 +110,16 @@ class Library:
         else:
             print("Kitap bulunamadı")
 
-    def deleteMember(self,name):
+    def deleteMember(self,MemberID):
         if len(self.members) == 0:
             print("Kayıtlı üye bulunamadı.")
         else:
-            print(self.members)
-            if name in self.members:
-                if self.members[name]["booksLent"] == []:
-                    del self.members[name]
+            if self.members[MemberID]:
+                if self.members[MemberID]["booksLent"] == []:
+                    del self.members[MemberID]
                     print("Üye silindi.")
                 else:
-                    print("Hata: üye'nin iade etmediği kitaplar mevcut.")
+                    print(f"Hata: üye'nin iade etmediği kitap(lar) mevcut.\n {self.members[int(MemberID)]['booksLent']}")
             else:
                 print("Bu isimde bir kullanıcı bulunamadı.")
 
@@ -105,22 +135,27 @@ while True:
             print("Kitap kaydı bulunamadı.")
         else:
             for books in library.collection:
-                print(f"{books} - {library.collection[books]['name']} - {library.collection[books]['author']} - {library.collection[books]['year']} - {library.collection[books]['publisher']}")
+                if library.collection[books]["isLent"] == False:
+                    print(f"{books} - {library.collection[books]['name']} - {library.collection[books]['author']} - {library.collection[books]['year']} - {library.collection[books]['publisher']} [RAFTA]")
+                else:
+                    print(f"{books} - {library.collection[books]['name']} - {library.collection[books]['author']} - {library.collection[books]['year']} - {library.collection[books]['publisher']} [ÖDÜNÇ VERİLDİ]")
+
     elif Menu == "1":
         if len(library.members) == 0:
             print("Üye kaydı bulunamadı.")
         else:
             for members in library.members:
                 print(f"No: {members} Üye Adı: {library.members[members]['name']} - Telefon Numarası: {library.members[members]['phoneNumber']} - Email adresi: {library.members[members]['email']} - İkamet Adresi: {library.members[members]['address']}")
-            print(library.members)
+                if library.members[members]["booksLent"] != []:
+                    print(f"Kitaplar: {library.members[members]['booksLent']}")
     elif Menu == "2":
          library.addBook()
     elif Menu == "3":
-         library.removeBook(input("Silinecek kitabın numarasını girin: "))
+         library.removeBook(int(input("Silinecek kitabın numarasını girin: ")))
     elif Menu == "4":
         library.addMember()
     elif Menu == "5":
-         library.deleteMember(input("Silinecek üyenin numarasını girin: "))
+         library.deleteMember(int(input("Silinecek üyenin numarasını girin: ")))
     elif Menu == "6":
          library.lendBook(int(input("Ödünç verilen üyenin numarasını girin: ")),int(input("Kitabın numarasını girin: ")))
     elif Menu == "7":
