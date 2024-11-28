@@ -1,3 +1,5 @@
+import random
+
 class Book:
     def __init__(self,name,author,year,publisher):
         self.name = name
@@ -14,7 +16,7 @@ class Member:
 
 class Library:
     def __init__(self):
-        self.collection = { 0 : {
+        self.collection = { 64 : {
             "name" : "Moby Dick",
             "author" : "Herman Melville",
             "year" : "1851",
@@ -22,7 +24,7 @@ class Library:
             "isLent" : False
             }
             ,
-            1 : {
+            79 : {
             "name" : "Yüzüklerin Efendisi",
             "author" : "J.R.R. Tolkien",
             "year" : "1954",
@@ -32,14 +34,14 @@ class Library:
         }
         
         self.members = {
-            0 : {
+            124 : {
             "name" : "Mehmet",
             "phoneNumber" : "0555 555 55 55",
             "email" : "mehmet@yildiz.com",
             "address" : "Ankara",
             "booksLent" : []
             },
-            1 : {
+            265 : {
             "name" : "Ali",
             "phoneNumber" : "0555 555 55 55",
             "email" : "ali@yildiz.com",
@@ -51,13 +53,13 @@ class Library:
     def addBook(self):
 
         book = Book(input("Kitap adı: "),input("Yazar: "),input("Yıl: "),input("Yayınevi: "))
-
-        self.collection[int((len(self.collection)-1) + 1)] = {
-                "name" : book.name,
-                "author" : book.author,
-                "year" : book.year,
-                "publisher" : book.publisher,
-                "isLent" : False}
+        randomNum = int(random.randint(0,999))
+        self.collection[randomNum] = {
+            "name" : book.name,
+            "author" : book.author,
+            "year" : book.year,
+            "publisher" : book.publisher,
+            "isLent" : False}
 
 
         print(f"{book.name} adlı kitap eklendi")
@@ -65,17 +67,18 @@ class Library:
 
 
     def removeBook(self,bookID):
-        if self.collection[bookID]in self.collection:
+        if self.collection[bookID]:
             del self.collection[bookID]
-            print(f"{self.collection[bookID]['name']} adlı kitap silindi")
+            print(f"{bookID} numaralı kitap silindi")
         else:
             print(f"Hata: {bookID} numaralı Kitap bulunamadı.")
 
     def addMember(self):
         
         member = Member(input("Ad: "),input("Telefon: "),input("E-posta: "),input("Adres: "))
+        randomNum = int(random.randint(0,999))
 
-        self.members[len(self.members)+1] = {
+        self.members[randomNum] = {
             "name" : member.name,
             "phoneNumber" : member.phoneNumber,
             "email" : member.email,
