@@ -16,7 +16,7 @@ class Member:
 
 class Library:
     def __init__(self):
-        self.collection = { 64 : {
+        self.collection = { 0 : {
             "name" : "Moby Dick",
             "author" : "Herman Melville",
             "year" : "1851",
@@ -24,7 +24,7 @@ class Library:
             "isLent" : False
             }
             ,
-            79 : {
+            1 : {
             "name" : "Yüzüklerin Efendisi",
             "author" : "J.R.R. Tolkien",
             "year" : "1954",
@@ -34,14 +34,14 @@ class Library:
         }
         
         self.members = {
-            124 : {
+            0 : {
             "name" : "Mehmet",
             "phoneNumber" : "0555 555 55 55",
             "email" : "mehmet@yildiz.com",
             "address" : "Ankara",
             "booksLent" : []
             },
-            265 : {
+            1 : {
             "name" : "Ali",
             "phoneNumber" : "0555 555 55 55",
             "email" : "ali@yildiz.com",
@@ -51,10 +51,17 @@ class Library:
         }
 
     def addBook(self):
-
+        
+        while True:
+            bookID = int(input("Kitaba atanacak bir numara girin: "))
+            if id in self.collection:
+                print(f"Hata: {id} numarası başka bir kitaba atanmış. Yeni bir id seçin")
+            else:
+                break
+        
         book = Book(input("Kitap adı: "),input("Yazar: "),input("Yıl: "),input("Yayınevi: "))
-        randomNum = int(random.randint(0,999))
-        self.collection[randomNum] = {
+        
+        self.collection[bookID] = {
             "name" : book.name,
             "author" : book.author,
             "year" : book.year,
@@ -67,16 +74,31 @@ class Library:
 
 
     def removeBook(self,bookID):
-        if self.collection[bookID]:
-            del self.collection[bookID]
-            print(f"{bookID} numaralı kitap silindi")
+        if bookID in self.collection:
+            sure = input(f'"{self.collection[bookID]['name']}" adlı Kitabı silmek istiyor musunuz? (E/H): ')
+            if sure == "E" or sure == "e":
+                del self.collection[bookID]
+                print("Kitap silindi")
+            else:
+                print("Kitap silme işlemi iptal edildi.")
         else:
             print(f"Hata: {bookID} numaralı Kitap bulunamadı.")
 
     def addMember(self):
-        
+
+        while True:
+            memberID = int(input("Üyelik numarası girin: "))
+            if memberID in self.collection:
+                print(f"Hata: {memberID} numarası başka bir üyeye atanmış. Lütfen başka bir numara girin.")
+            else:
+                break
+
         member = Member(input("Ad: "),input("Telefon: "),input("E-posta: "),input("Adres: "))
         randomNum = int(random.randint(0,999))
+        if randomNum == 124 or randomNum == 265:
+            randomNum2 = int(random.randint(0,999))
+            randomNum = randomNum2
+
 
         self.members[randomNum] = {
             "name" : member.name,
@@ -154,7 +176,8 @@ while True:
     elif Menu == "2":
          library.addBook()
     elif Menu == "3":
-         library.removeBook(int(input("Silinecek kitabın numarasını girin: ")))
+        id = int(input("Silinecek kitabın numarasını girin: "))
+        library.removeBook(id)
     elif Menu == "4":
         library.addMember()
     elif Menu == "5":
