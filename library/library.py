@@ -159,6 +159,7 @@ class Library:
         if bookID in self.collection:
             if MemberID in self.members:
                 self.members[MemberID]["booksLent"].remove(self.collection[bookID])
+                self.collection[bookID]["LentTo"] = ""
                 self.collection[bookID]["isLent"] = False
                 print("Kitap iade alındı")
                 self.writeToDatabase("collection")
