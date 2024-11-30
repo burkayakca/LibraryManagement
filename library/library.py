@@ -21,7 +21,8 @@ class Library:
             "author" : "Herman Melville",
             "year" : "1851",
             "publisher" : "Macmillan",
-            "isLent" : False
+            "isLent" : False,
+            "LentTo" : ""
             }
             ,
             1 : {
@@ -29,7 +30,8 @@ class Library:
             "author" : "J.R.R. Tolkien",
             "year" : "1954",
             "publisher" : "Yapıkredi Yayınları",
-            "isLent" : False
+            "isLent" : False,
+            "LentTo" : ""
             }
         }
         
@@ -54,7 +56,7 @@ class Library:
         if database == "members":
             with open ("members.json","w",encoding="utf-8") as file:
                 json_string = json.dumps(self.members, ensure_ascii=False)
-                file.write(json_string.decode())
+                file.write(json_string)
         elif database == "collection":
             with open ("collection.json","w",encoding="utf-8") as file:
                 json_string = json.dumps(self.collection, ensure_ascii=False)
@@ -75,7 +77,9 @@ class Library:
             "author" : book.author,
             "year" : book.year,
             "publisher" : book.publisher,
-            "isLent" : False}
+            "isLent" : False,
+            "LentTo" : ""
+        }
         
         self.writeToDatabase("collection")
 
@@ -85,13 +89,25 @@ class Library:
 
     def removeBook(self,bookID):
         if bookID in self.collection:
-            sure = input(f'"{self.collection[bookID]['name']}" adlı Kitabı silmek istiyor musunuz? (E/H): ')
-            if sure == "E" or sure == "e":
-                del self.collection[bookID]
-                self.writeToDatabase("collection")
-                print("Kitap silindi")
+            if self.collection[bookID]["isLent"] == True:
+                LentToID = self.collection[bookID]["LentTo"]
+                DeleteLentBook = input(f"Kitap, {LentToID} numaralı üye'ye ödünç verilmiş gözüküyor. Yine de silinsim mi?(E/H)")
+                if DeleteLentBook == "E" or DeleteLentBook == "e":
+                    self.members[LentToID]["booksLent"].remove(self.collection[bookID])
+                    del self.collection[bookID]
+                    self.writeToDatabase("collection")
+                    self.writeToDatabase("members")
+                    print("Kitap silindi")
+                else: 
+                    print("Kitap silme işlemi iptal edildi.")
             else:
-                print("Kitap silme işlemi iptal edildi.")
+                sure = input(f'"{self.collection[bookID]['name']}" adlı Kitabı silmek istiyor musunuz? (E/H): ')
+                if sure == "E" or sure == "e":
+                    del self.collection[bookID]
+                    self.writeToDatabase("collection")
+                    print("Kitap silindi")
+                else:
+                    print("Kitap silme işlemi iptal edildi.")
         else:
             print(f"Hata: {bookID} numaralı Kitap bulunamadı.")
         
@@ -126,6 +142,7 @@ class Library:
                 if self.collection[bookID]["isLent"] == False:
                     self.members[MemberID]["booksLent"].append(self.collection[bookID])
                     self.collection[bookID]["isLent"] = True
+                    self.collection[bookID]["LentTo"] = MemberID
                     print("Kitap Ödünç verildi")
                     self.writeToDatabase("collection")
                     self.writeToDatabase("members")
