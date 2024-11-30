@@ -53,12 +53,12 @@ class Library:
     def writeToDatabase(self,database):
         if database == "members":
             with open ("members.json","w",encoding="utf-8") as file:
-                json_string = json.dumps(self.members, ensure_ascii=False).encode('utf8')
+                json_string = json.dumps(self.members, ensure_ascii=False)
                 file.write(json_string.decode())
         elif database == "collection":
             with open ("collection.json","w",encoding="utf-8") as file:
-                json_string = json.dumps(self.collection, ensure_ascii=False).encode('utf8')
-                file.write(json_string.decode())
+                json_string = json.dumps(self.collection, ensure_ascii=False)
+                file.write(json_string)
     def addBook(self):
         
         while True:
