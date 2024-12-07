@@ -14,7 +14,7 @@ def readjson(file = "collection"):
         except:
             return False
     else:
-        print("hata: ")
+        print("Hata: Veritabanı bulunamadı.")
 
 class Book:
     def __init__(self,name,author,year,publisher):
