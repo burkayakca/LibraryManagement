@@ -83,6 +83,7 @@ class Library:
 
 
     def removeBook(self,bookID):
+        bookID = str(bookID)
         if bookID in self.collection:
             if self.collection[bookID]["isLent"] == True:
                 LentToID = self.collection[bookID]["LentTo"]
@@ -132,10 +133,12 @@ class Library:
 
 
     def lendBook(self,MemberID,bookID):
-        if self.members[MemberID]:
-            if self.collection[bookID]:
+        MemberID = str(MemberID)
+        bookID = str(bookID)
+        if MemberID in self.members:
+            if bookID in self.collection:
                 if self.collection[bookID]["isLent"] == False:
-                    self.members[MemberID]["booksLent"].append(self.collection[bookID])
+                    self.members[MemberID]["booksLent"].append(self.collection[int(bookID)])
                     self.collection[bookID]["isLent"] = True
                     self.collection[bookID]["LentTo"] = MemberID
                     print("Kitap Ödünç verildi")
@@ -151,6 +154,8 @@ class Library:
         
 
     def returnBook(self,MemberID,bookID):
+        MemberID = str(MemberID)
+        bookID = str(bookID)
         if bookID in self.collection:
             if MemberID in self.members:
                 self.members[MemberID]["booksLent"].remove(self.collection[bookID])
@@ -165,12 +170,13 @@ class Library:
             print("Kitap bulunamadı")
 
     def deleteMember(self,MemberID):
+        MemberID = str(MemberID)
         if len(self.members) == 0:
             print("Kayıtlı üye bulunamadı.")
         else:
             if self.members[MemberID]:
                 if self.members[MemberID]["booksLent"] == []:
-                    del self.members[MemberID]
+                    del self.members[str(MemberID)]
                     print("Üye silindi.")
                     self.writeToDatabase("members")
                 else:
