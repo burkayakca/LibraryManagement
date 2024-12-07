@@ -88,7 +88,7 @@ class Library:
                 LentToID = self.collection[bookID]["LentTo"]
                 DeleteLentBook = input(f"Kitap, {LentToID} numaralı üye'ye ödünç verilmiş gözüküyor. Yine de silinsim mi?(E/H)")
                 if DeleteLentBook == "E" or DeleteLentBook == "e":
-                    self.members[LentToID]["booksLent"].remove(self.collection[bookID])
+                    self.members[LentToID]["booksLent"].remove(self.collection[bookID]["name"])
                     del self.collection[bookID]
                     self.writeToDatabase("collection")
                     self.writeToDatabase("members")
@@ -98,7 +98,7 @@ class Library:
             else:
                 sure = input(f'"{self.collection[bookID]['name']}" adlı Kitabı silmek istiyor musunuz? (E/H): ')
                 if sure == "E" or sure == "e":
-                    del self.collection[bookID]
+                    del self.collection[bookID]["name"]
                     self.writeToDatabase("collection")
                     print("Kitap silindi")
                 else:
@@ -134,10 +134,10 @@ class Library:
     def lendBook(self,MemberID,bookID):
         MemberID = str(MemberID)
         bookID = str(bookID)
-        if MemberID in self.members:
-            if bookID in self.collection:
+        if self.members[MemberID]:
+            if self:
                 if self.collection[bookID]["isLent"] == False:
-                    self.members[MemberID]["booksLent"].append(self.collection[int(bookID)])
+                    self.members[MemberID]["booksLent"].append(self.collection[bookID]["name"])
                     self.collection[bookID]["isLent"] = True
                     self.collection[bookID]["LentTo"] = MemberID
                     print("Kitap Ödünç verildi")
@@ -157,7 +157,7 @@ class Library:
         bookID = str(bookID)
         if bookID in self.collection:
             if MemberID in self.members:
-                self.members[MemberID]["booksLent"].remove(self.collection[bookID])
+                self.members[MemberID]["booksLent"].remove(self.collection[bookID]["name"])
                 self.collection[bookID]["LentTo"] = ""
                 self.collection[bookID]["isLent"] = False
                 print("Kitap iade alındı")
@@ -179,7 +179,7 @@ class Library:
                     print("Üye silindi.")
                     self.writeToDatabase("members")
                 else:
-                    print(f"Hata: üye'nin iade etmediği kitap(lar) mevcut.\n {self.members[int(MemberID)]['booksLent']}")
+                    print(f"Hata: üye'nin iade etmediği kitap(lar) mevcut.\n {self.members[MemberID]['booksLent']}")
             else:
                 print("Bu isimde bir kullanıcı bulunamadı.")
 
