@@ -1,5 +1,21 @@
 import json
 
+def readjson(file = "collection"):
+    if file == "collection":
+        try:
+            with open("./collection.json","r",encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return False 
+    elif file == "members":
+        try:
+            with open("./members.json","r",encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return False
+    else:
+        print("hata: ")
+
 class Book:
     def __init__(self,name,author,year,publisher):
         self.name = name
@@ -16,41 +32,20 @@ class Member:
 
 class Library:
     def __init__(self):
-        self.collection = { 0 : {
-            "name" : "Moby Dick",
-            "author" : "Herman Melville",
-            "year" : "1851",
-            "publisher" : "Macmillan",
-            "isLent" : False,
-            "LentTo" : ""
-            }
-            ,
-            1 : {
-            "name" : "Yüzüklerin Efendisi",
-            "author" : "J.R.R. Tolkien",
-            "year" : "1954",
-            "publisher" : "Yapıkredi Yayınları",
-            "isLent" : False,
-            "LentTo" : ""
-            }
-        }
-        
-        self.members = {
-            0 : {
-            "name" : "Mehmet",
-            "phoneNumber" : "0555 555 55 55",
-            "email" : "mehmet@yildiz.com",
-            "address" : "Ankara",
-            "booksLent" : []
-            },
-            1 : {
-            "name" : "Ali",
-            "phoneNumber" : "0555 555 55 55",
-            "email" : "ali@yildiz.com",
-            "address" : "Ankara",
-            "booksLent" : []
-            }
-        }
+        if readjson() == False:
+            self.emptydata = {}
+            with open("./collection.json","w",encoding="utf-8") as f:
+                json_string = json.dumps(self.emptydata, ensure_ascii=False)
+                f.write(json_string)
+
+        self.collection = readjson()
+
+        if readjson("members") == False:
+            self.emptydata = {}
+            with open("./members.json","w",encoding="utf-8") as f:
+                json_string = json.dumps(self.emptydata, ensure_ascii=False)
+                f.write(json_string)
+        self.members = readjson("members")
 
     def writeToDatabase(self,database):
         if database == "members":
@@ -191,7 +186,7 @@ while True:
     print("*"*20)
 
     if Menu == "0":
-        if len(library.collection) == 0:
+        if len(library.collection) == 0 or library.collection == False:
             print("Kitap kaydı bulunamadı.")
         else:
             for books in library.collection:
