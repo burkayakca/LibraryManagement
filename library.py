@@ -37,7 +37,6 @@ class Library:
             with open("./collection.json","w",encoding="utf-8") as f:
                 json_string = json.dumps(self.emptydata, ensure_ascii=False)
                 f.write(json_string)
-
         self.collection = readjson()
 
         if readjson("members") == False:
