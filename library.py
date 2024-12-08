@@ -1,6 +1,7 @@
 import json
 
-def readjson(file = "collection"):
+def readDatabase(file = "collection"):
+
     if file == "collection":
         try:
             with open("./collection.json","r",encoding="utf-8") as f:
@@ -18,6 +19,7 @@ def readjson(file = "collection"):
 
 class Book:
     def __init__(self,name,author,year,publisher):
+
         self.name = name
         self.author = author
         self.year = year
@@ -25,6 +27,7 @@ class Book:
 
 class Member:
     def __init__(self,name,phoneNumber,email,address):
+
         self.name = name
         self.phoneNumber = phoneNumber
         self.email = email
@@ -32,21 +35,22 @@ class Member:
 
 class Library:
     def __init__(self):
-        if readjson() == False:
-            self.emptydata = {}
-            with open("./collection.json","w",encoding="utf-8") as f:
-                json_string = json.dumps(self.emptydata, ensure_ascii=False)
-                f.write(json_string)
-        self.collection = readjson()
 
-        if readjson("members") == False:
-            self.emptydata = {}
-            with open("./members.json","w",encoding="utf-8") as f:
-                json_string = json.dumps(self.emptydata, ensure_ascii=False)
+        self.emptyData = {}
+        if readDatabase() == False:
+            with open("./collection.json","w",encoding="utf-8") as f:
+                json_string = json.dumps(self.emptyData, ensure_ascii=False)
                 f.write(json_string)
-        self.members = readjson("members")
+        self.collection = readDatabase()
+
+        if readDatabase("members") == False:
+            with open("./members.json","w",encoding="utf-8") as f:
+                json_string = json.dumps(self.emptyData, ensure_ascii=False)
+                f.write(json_string)
+        self.members = readDatabase("members")
 
     def writeToDatabase(self,database):
+
         if database == "members":
             with open ("members.json","w",encoding="utf-8") as file:
                 json_string = json.dumps(self.members, ensure_ascii=False)
@@ -55,8 +59,21 @@ class Library:
             with open ("collection.json","w",encoding="utf-8") as file:
                 json_string = json.dumps(self.collection, ensure_ascii=False)
                 file.write(json_string)
+    
+    def validate(self,object,id):
+    
+        if object == "member":
+            if id in self.members:
+                return True
+            else:
+                return False
+        elif object == "book":
+            if id in self.collection:
+                return True
+            else:
+                return False
     def addBook(self):
-        
+
         while True:
             bookID = int(input("Kitaba atanacak bir numara girin: "))
             if bookID in self.collection:
@@ -83,7 +100,7 @@ class Library:
 
     def removeBook(self,bookID):
         bookID = str(bookID)
-        if bookID in self.collection:
+        if self.validate("book",bookID) == True:
             if self.collection[bookID]["isLent"] == True:
                 LentToID = self.collection[bookID]["LentTo"]
                 DeleteLentBook = input(f"Kitap, {LentToID} numaralı üye'ye ödünç verilmiş gözüküyor. Yine de silinsim mi?(E/H)")
@@ -98,7 +115,7 @@ class Library:
             else:
                 sure = input(f'"{self.collection[bookID]['name']}" adlı Kitabı silmek istiyor musunuz? (E/H): ')
                 if sure == "E" or sure == "e":
-                    del self.collection[bookID]["name"]
+                    del self.collection[bookID]
                     self.writeToDatabase("collection")
                     print("Kitap silindi")
                 else:
@@ -112,7 +129,7 @@ class Library:
 
         while True:
             memberID = int(input("Üyelik numarası girin: "))
-            if memberID in self.collection:
+            if self.validate("member",memberID) == True:
                 print(f"Hata: {memberID} numarası mevcut bir üyeye atanmış. Lütfen farklı bir numara girin.")
             else:
                 break
@@ -134,8 +151,8 @@ class Library:
     def lendBook(self,MemberID,bookID):
         MemberID = str(MemberID)
         bookID = str(bookID)
-        if self.members[MemberID]:
-            if self:
+        if self.validate("member",MemberID) == True:
+            if self.validate("book",bookID) == True:
                 if self.collection[bookID]["isLent"] == False:
                     self.members[MemberID]["booksLent"].append(self.collection[bookID]["name"])
                     self.collection[bookID]["isLent"] = True
@@ -155,18 +172,25 @@ class Library:
     def returnBook(self,MemberID,bookID):
         MemberID = str(MemberID)
         bookID = str(bookID)
-        if bookID in self.collection:
-            if MemberID in self.members:
-                self.members[MemberID]["booksLent"].remove(self.collection[bookID]["name"])
-                self.collection[bookID]["LentTo"] = ""
-                self.collection[bookID]["isLent"] = False
-                print("Kitap iade alındı")
-                self.writeToDatabase("collection")
-                self.writeToDatabase("members")
+        if self.validate("member",MemberID) == True:
+            if len(self.members[MemberID]["booksLent"]) == 0:
+                print(f"{MemberID} numaralı kişi kitap ödünç almamış.")
             else:
-                print(f"{MemberID} numaralı kişinin kaydı bulunamadı.")
+                if self.validate("book",bookID) == True:
+                    if self.collection[bookID]["isLent"] == True:
+                        self.members[MemberID]["booksLent"].remove(self.collection[bookID]["name"])
+                        self.collection[bookID]["LentTo"] = ""
+                        self.collection[bookID]["isLent"] = False
+                        print("Kitap iade alındı")
+                        self.writeToDatabase("collection")
+                        self.writeToDatabase("members")
+                    else:
+                        print("Kitap ödünç alınmamış.")
+                else:
+                    print("Kitap bulunamadı")
         else:
-            print("Kitap bulunamadı")
+            print(f"{MemberID} numaralı kişinin kaydı bulunamadı.")
+        
 
     def deleteMember(self,MemberID):
         MemberID = str(MemberID)
@@ -175,19 +199,25 @@ class Library:
         else:
             if self.members[MemberID]:
                 if self.members[MemberID]["booksLent"] == []:
-                    del self.members[str(MemberID)]
-                    print("Üye silindi.")
-                    self.writeToDatabase("members")
+                    sure = input(f'"{self.members[MemberID]["name"]}" adlı üyeyi silmek istiyor musunuz? (E/H): ')
+                    if sure == "E" or sure == "e":
+                        del self.members[str(MemberID)]
+                        print("Üye silindi.")
+                        self.writeToDatabase("members")
+                    else:
+                        print("Üye silme işlemi iptal edildi.")
                 else:
                     print(f"Hata: üye'nin iade etmediği kitap(lar) mevcut.\n {self.members[MemberID]['booksLent']}")
             else:
                 print("Bu isimde bir kullanıcı bulunamadı.")
 
+
+
 library = Library()
 
 while True:
 
-    Menu = input("\n0-Kitap Listesi\n1-Üye Listesi\n2-Kitap Ekle\n3-Kitap Sil\n4-Üye Ekle\n5-Üye Sil\n6-Kitap Ödünç Ver\n7-Kitap İade Al\n8-Cıkıs\n \nSecim: ")
+    Menu = input("\n0-Kitap Listesi\n1-Üye Listesi\n2-Kitap Ekle\n3-Kitap Sil\n4-Üye Ekle\n5-Üye Sil\n6-Kitap Ödünç Ver\n7-Kitap İade Al\n8-Çıkış\n \nSeçim: ")
     print("*"*20)
 
     if Menu == "0":
