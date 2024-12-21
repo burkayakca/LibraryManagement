@@ -1,4 +1,14 @@
-import json
+import sqlite3
+
+libraryDB = sqlite3.connect("library.db")
+
+libCursor = libraryDB.cursor()
+
+libCursor.execute('''CREATE TABLE IF NOT EXISTS books
+                        (name text, author text, year int, publisher text)''')
+
+libCursor.execute('''CREATE TABLE IF NOT EXISTS memnbers
+                        (name text, phoneNumber int, email text, address text)''')
 
 def readDatabase(file = "collection"):
 
@@ -72,30 +82,17 @@ class Library:
                 return True
             else:
                 return False
+            
     def addBook(self):
 
-        while True:
-            bookID = int(input("Kitaba atanacak bir numara girin: "))
-            if bookID in self.collection:
-                print(f"Hata: {bookID} numarası mevcut bir kitaba atanmış. Farklı bir numara girin ")
-            else:
-                break
-        
         book = Book(input("Kitap adı: "),input("Yazar: "),input("Yıl: "),input("Yayınevi: "))
         
-        self.collection[bookID] = {
-            "name" : book.name,
-            "author" : book.author,
-            "year" : book.year,
-            "publisher" : book.publisher,
-            "isLent" : False,
-            "LentTo" : ""
-        }
+        libCursor.execute("INSERT INTO books (name, author, year, publisher) VALUES (?, ?, ?, ?)",
+        (book.name, book.author, book.year, book.publisher))
         
-        self.writeToDatabase("collection")
-
+        libraryDB.commit
         print(f"{book.name} adlı kitap eklendi")
-        print(self.collection)
+
 
 
     def removeBook(self,bookID):
@@ -127,24 +124,14 @@ class Library:
 
     def addMember(self):
 
-        while True:
-            memberID = int(input("Üyelik numarası girin: "))
-            if self.validate("member",memberID) == True:
-                print(f"Hata: {memberID} numarası mevcut bir üyeye atanmış. Lütfen farklı bir numara girin.")
-            else:
-                break
-
         member = Member(input("Ad: "),input("Telefon: "),input("E-posta: "),input("Adres: "))
 
-        self.members[memberID] = {
-            "name" : member.name,
-            "phoneNumber" : member.phoneNumber,
-            "email" : member.email,
-            "address" : member.address,
-            "booksLent" : []
-        }
+        libCursor.execute("INSERT INTO memebers (name, phoneNumber, email, address) VALUES (?, ?, ?, ?)",
+            (member.name, member.phoneNumber, member.email, member.address))
+        
+        libraryDB.commit
+        print("Üye eklendi.")
 
-        self.writeToDatabase("members")
 
 
 
