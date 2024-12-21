@@ -10,22 +10,6 @@ libCursor.execute('''CREATE TABLE IF NOT EXISTS books
 libCursor.execute('''CREATE TABLE IF NOT EXISTS memnbers
                         (name text, phoneNumber int, email text, address text)''')
 
-def readDatabase(file = "collection"):
-
-    if file == "collection":
-        try:
-            with open("./collection.json","r",encoding="utf-8") as f:
-                return json.load(f)
-        except:
-            return False 
-    elif file == "members":
-        try:
-            with open("./members.json","r",encoding="utf-8") as f:
-                return json.load(f)
-        except:
-            return False
-    else:
-        print("Hata: Veritabanı bulunamadı.")
 
 class Book:
     def __init__(self,name,author,year,publisher):
@@ -47,29 +31,9 @@ class Library:
     def __init__(self):
 
         self.emptyData = {}
-        if readDatabase() == False:
-            with open("./collection.json","w",encoding="utf-8") as f:
-                json_string = json.dumps(self.emptyData, ensure_ascii=False)
-                f.write(json_string)
         self.collection = readDatabase()
-
-        if readDatabase("members") == False:
-            with open("./members.json","w",encoding="utf-8") as f:
-                json_string = json.dumps(self.emptyData, ensure_ascii=False)
-                f.write(json_string)
         self.members = readDatabase("members")
 
-    def writeToDatabase(self,database):
-
-        if database == "members":
-            with open ("members.json","w",encoding="utf-8") as file:
-                json_string = json.dumps(self.members, ensure_ascii=False)
-                file.write(json_string)
-        elif database == "collection":
-            with open ("collection.json","w",encoding="utf-8") as file:
-                json_string = json.dumps(self.collection, ensure_ascii=False)
-                file.write(json_string)
-    
     def validate(self,object,id):
     
         if object == "member":
@@ -131,9 +95,6 @@ class Library:
         
         libraryDB.commit
         print("Üye eklendi.")
-
-
-
 
     def lendBook(self,MemberID,bookID):
         MemberID = str(MemberID)
