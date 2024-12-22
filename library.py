@@ -1,16 +1,5 @@
 import sqlite3
 
-libraryDB = sqlite3.connect("library.db")
-
-libCursor = libraryDB.cursor()
-
-libCursor.execute('''CREATE TABLE IF NOT EXISTS books
-                        (name text, author text, year int, publisher text)''')
-
-libCursor.execute('''CREATE TABLE IF NOT EXISTS memnbers
-                        (name text, phoneNumber int, email text, address text)''')
-
-
 class Book:
     def __init__(self,name,author,year,publisher):
 
@@ -29,34 +18,28 @@ class Member:
 
 class Library:
     def __init__(self):
+        self.db = sqlite3.connect("library.db")
+        self.cursor = self.db.cursor()
+        self.create_tables()
 
-        self.emptyData = {}
-        self.collection = readDatabase()
-        self.members = readDatabase("members")
+    def create_tables(self):
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS books
+                               (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                name TEXT, author TEXT, year INTEGER, publisher TEXT, isLent BOOLEAN DEFAULT 0)''')
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS members
+                               (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                name TEXT, phoneNumber TEXT, email TEXT, address TEXT)''')
 
-    def validate(self,object,id):
-    
-        if object == "member":
-            if id in self.members:
-                return True
-            else:
-                return False
-        elif object == "book":
-            if id in self.collection:
-                return True
-            else:
-                return False
-            
+
     def addBook(self):
 
         book = Book(input("Kitap adı: "),input("Yazar: "),input("Yıl: "),input("Yayınevi: "))
         
-        libCursor.execute("INSERT INTO books (name, author, year, publisher) VALUES (?, ?, ?, ?)",
+        self.cursor.execute("INSERT INTO books (name, author, year, publisher,isLent) VALUES (?, ?, ?, ?,0)",
         (book.name, book.author, book.year, book.publisher))
         
-        libraryDB.commit
+        self.db.commit()
         print(f"{book.name} adlı kitap eklendi")
-
 
 
     def removeBook(self,bookID):
@@ -90,10 +73,10 @@ class Library:
 
         member = Member(input("Ad: "),input("Telefon: "),input("E-posta: "),input("Adres: "))
 
-        libCursor.execute("INSERT INTO memebers (name, phoneNumber, email, address) VALUES (?, ?, ?, ?)",
+        self.cursor.execute("INSERT INTO members (name, phoneNumber, email, address) VALUES (?, ?, ?, ?)",
             (member.name, member.phoneNumber, member.email, member.address))
         
-        libraryDB.commit
+        self.db.commit()
         print("Üye eklendi.")
 
     def lendBook(self,MemberID,bookID):
