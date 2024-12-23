@@ -1,2 +1,4 @@
 pandas
 sqlite3
+colorama
+tabulate
