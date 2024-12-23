@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+import tabulate
 
 class Book:
     def __init__(self,name,author,year,publisher):
@@ -155,11 +156,12 @@ while True:
     if Menu == "0":
         selectBooks = "SELECT * FROM books" 
         books_df = pd.read_sql_query(selectBooks, library.db)
-        print(books_df)
+        books_df["isLent"] = books_df["isLent"].map({0: "Hayır", 1: "Evet"})
+        print(tabulate.tabulate(books_df, headers=["Kayıt No","Kitap Adı", "Yazar","Yıl","Yayıncı","Ödünç?"], tablefmt='psql',showindex=False))
     elif Menu == "1":
         selectMembers = "SELECT * FROM members" 
         members_df = pd.read_sql_query(selectMembers, library.db)
-        print(members_df)
+        print(tabulate.tabulate(members_df, headers=["Üye No","Üye Adı", "Telefon No","E-Posta","Adres"], tablefmt='psql',showindex=False))
     elif Menu == "2":
          library.addBook()
     elif Menu == "3":
