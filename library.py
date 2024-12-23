@@ -45,29 +45,19 @@ class Library:
 
 
     def removeBook(self,bookID):
-        bookID = str(bookID)
-        if self.validate("book",bookID) == True:
-            if self.collection[bookID]["isLent"] == True:
-                LentToID = self.collection[bookID]["LentTo"]
-                DeleteLentBook = input(f"Kitap, {LentToID} numaralı üye'ye ödünç verilmiş gözüküyor. Yine de silinsim mi?(E/H)")
-                if DeleteLentBook == "E" or DeleteLentBook == "e":
-                    self.members[LentToID]["booksLent"].remove(self.collection[bookID]["name"])
-                    del self.collection[bookID]
-                    self.writeToDatabase("collection")
-                    self.writeToDatabase("members")
-                    print("Kitap silindi")
-                else: 
-                    print("Kitap silme işlemi iptal edildi.")
-            else:
-                sure = input(f'"{self.collection[bookID]['name']}" adlı Kitabı silmek istiyor musunuz? (E/H): ')
-                if sure == "E" or sure == "e":
-                    del self.collection[bookID]
-                    self.writeToDatabase("collection")
-                    print("Kitap silindi")
-                else:
-                    print("Kitap silme işlemi iptal edildi.")
+
+        bookName = self.cursor.execute("SELECT name FROM books WHERE id = (?)",[bookID]).fetchone()
+        if bookName == None:
+            print("Kitap bulunamadı")
         else:
-            print(f"Hata: {bookID} numaralı Kitap bulunamadı.")
+            bookYear = self.cursor.execute("SELECT year FROM books WHERE id = (?)",[bookID]).fetchone()
+            sure = input(f"'{bookName[0]}({bookYear[0]})' adlı kitabı silmek istiyormusunuz?(E/H - Y/N)")
+            if sure == "E":
+                self.cursor.execute("DELETE FROM books WHERE id = (?)",[bookID])
+                self.db.commit()
+                print("Kitap Silindi.")
+            else:
+                print("İşlem iptal edildi.")
         
         
 
@@ -80,6 +70,19 @@ class Library:
         
         self.db.commit()
         print("Üye eklendi.")
+
+    def deleteMember(self,MemberID):
+        memberName = self.cursor.execute("SELECT name FROM members WHERE id = (?)",[MemberID]).fetchone()
+        if memberName == None:
+            print("Üye bulunamadı")
+        else:
+            sure = input(f"'{memberName[0]}' adlı üyeyi silmek istiyormusunuz?(E/H - Y/N)")
+            if sure == "E":
+                self.cursor.execute("DELETE FROM members WHERE id = (?)",[MemberID])
+                self.db.commit()
+                print("Üye Silindi.")
+            else:
+                print("İşlem iptal edildi.")
 
     def lendBook(self,MemberID,bookID):
         MemberID = str(MemberID)
@@ -125,25 +128,6 @@ class Library:
             print(f"{MemberID} numaralı kişinin kaydı bulunamadı.")
         
 
-    def deleteMember(self,MemberID):
-        MemberID = str(MemberID)
-        if len(self.members) == 0:
-            print("Kayıtlı üye bulunamadı.")
-        else:
-            if self.members[MemberID]:
-                if self.members[MemberID]["booksLent"] == []:
-                    sure = input(f'"{self.members[MemberID]["name"]}" adlı üyeyi silmek istiyor musunuz? (E/H): ')
-                    if sure == "E" or sure == "e":
-                        del self.members[str(MemberID)]
-                        print("Üye silindi.")
-                        self.writeToDatabase("members")
-                    else:
-                        print("Üye silme işlemi iptal edildi.")
-                else:
-                    print(f"Hata: üye'nin iade etmediği kitap(lar) mevcut.\n {self.members[MemberID]['booksLent']}")
-            else:
-                print("Bu isimde bir kullanıcı bulunamadı.")
-
 
 
 library = Library()
@@ -157,11 +141,17 @@ while True:
         selectBooks = "SELECT * FROM books" 
         books_df = pd.read_sql_query(selectBooks, library.db)
         books_df["isLent"] = books_df["isLent"].map({0: "Hayır", 1: "Evet"})
-        print(tabulate.tabulate(books_df, headers=["Kayıt No","Kitap Adı", "Yazar","Yıl","Yayıncı","Ödünç?"], tablefmt='psql',showindex=False))
+        if books_df.empty == True:
+            print("Kitap kaydı bulunamadı")
+        else:
+            print(tabulate.tabulate(books_df, headers=["Kayıt No","Kitap Adı", "Yazar","Yıl","Yayıncı","Ödünç?"], tablefmt='psql',showindex=False))
     elif Menu == "1":
         selectMembers = "SELECT * FROM members" 
         members_df = pd.read_sql_query(selectMembers, library.db)
-        print(tabulate.tabulate(members_df, headers=["Üye No","Üye Adı", "Telefon No","E-Posta","Adres"], tablefmt='psql',showindex=False))
+        if members_df.empty == True:
+            print("Üye kaydı bulunamadı")
+        else:
+            print(tabulate.tabulate(members_df, headers=["Üye No","Üye Adı", "Telefon No","E-Posta","Adres"], tablefmt='psql',showindex=False))
     elif Menu == "2":
          library.addBook()
     elif Menu == "3":
