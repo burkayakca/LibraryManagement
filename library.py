@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 class Book:
     def __init__(self,name,author,year,publisher):
@@ -152,23 +153,13 @@ while True:
     print("*"*20)
 
     if Menu == "0":
-        if len(library.collection) == 0 or library.collection == False:
-            print("Kitap kaydı bulunamadı.")
-        else:
-            for books in library.collection:
-                if library.collection[books]["isLent"] == False:
-                    print(f"{books} - {library.collection[books]['name']} - {library.collection[books]['author']} - {library.collection[books]['year']} - {library.collection[books]['publisher']} [RAFTA]")
-                else:
-                    print(f"{books} - {library.collection[books]['name']} - {library.collection[books]['author']} - {library.collection[books]['year']} - {library.collection[books]['publisher']} [ÖDÜNÇ VERİLDİ]")
-
+        selectBooks = "SELECT * FROM books" 
+        books_df = pd.read_sql_query(selectBooks, library.db)
+        print(books_df)
     elif Menu == "1":
-        if len(library.members) == 0:
-            print("Üye kaydı bulunamadı.")
-        else:
-            for members in library.members:
-                print(f"No: {members} Üye Adı: {library.members[members]['name']} - Telefon Numarası: {library.members[members]['phoneNumber']} - Email adresi: {library.members[members]['email']} - İkamet Adresi: {library.members[members]['address']}")
-                if library.members[members]["booksLent"] != []:
-                    print(f"Kitaplar: {library.members[members]['booksLent']}")
+        selectMembers = "SELECT * FROM members" 
+        members_df = pd.read_sql_query(selectMembers, library.db)
+        print(members_df)
     elif Menu == "2":
          library.addBook()
     elif Menu == "3":
