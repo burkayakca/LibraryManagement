@@ -32,6 +32,35 @@ class Library:
                                (id INTEGER PRIMARY KEY AUTOINCREMENT,
                                 name TEXT, phoneNumber TEXT, email TEXT, address TEXT)''')
 
+    def print_table(self,table):
+        
+        if table == "books":
+
+            selectBooks = "SELECT * FROM books" 
+            books_df = pd.read_sql_query(selectBooks, library.db)
+
+            if books_df.empty == True:
+                print("Kitap kaydı bulunamadı")
+            else:
+                library.printData("books")
+                print(tabulate.tabulate
+                    (
+                    books_df, headers=["Kayıt No","Kitap Adı", "Yazar","Yıl","Yayıncı","Ödünç?"],
+                    tablefmt='psql',showindex=False)
+                    )
+                
+        elif table == "members":  
+                                
+            selectMembers = "SELECT * FROM members" 
+            members_df = pd.read_sql_query(selectMembers, library.db)
+            if members_df.empty == True:
+                print("Üye kaydı bulunamadı")
+            else:
+                print(tabulate.tabulate
+                    (
+                    members_df,headers=["Üye No","Üye Adı", "Telefon No","E-Posta","Adres"], 
+                    tablefmt='psql',showindex=False)
+                    )
 
     def addBook(self):
 
@@ -58,7 +87,6 @@ class Library:
                 print("Kitap Silindi.")
             else:
                 print("İşlem iptal edildi.")
-        
         
 
     def addMember(self):
@@ -138,20 +166,9 @@ while True:
     print("*"*20)
 
     if Menu == "0":
-        selectBooks = "SELECT * FROM books" 
-        books_df = pd.read_sql_query(selectBooks, library.db)
-        books_df["isLent"] = books_df["isLent"].map({0: "Hayır", 1: "Evet"})
-        if books_df.empty == True:
-            print("Kitap kaydı bulunamadı")
-        else:
-            print(tabulate.tabulate(books_df, headers=["Kayıt No","Kitap Adı", "Yazar","Yıl","Yayıncı","Ödünç?"], tablefmt='psql',showindex=False))
+        library.print_table("books")
     elif Menu == "1":
-        selectMembers = "SELECT * FROM members" 
-        members_df = pd.read_sql_query(selectMembers, library.db)
-        if members_df.empty == True:
-            print("Üye kaydı bulunamadı")
-        else:
-            print(tabulate.tabulate(members_df, headers=["Üye No","Üye Adı", "Telefon No","E-Posta","Adres"], tablefmt='psql',showindex=False))
+        library.print_table("members")
     elif Menu == "2":
          library.addBook()
     elif Menu == "3":
@@ -167,6 +184,7 @@ while True:
         library.returnBook(int(input("İade alınan üyenin numarasını girin: ")),int(input("Kitabın numarasını girin: ")))
     elif Menu == "8":
         print("Programdan çıkılıyor...")
+        library.db.close()
         break
     else:
         print("Hatalı giris.")
