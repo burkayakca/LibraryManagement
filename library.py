@@ -1,6 +1,10 @@
 import sqlite3
 import pandas as pd
 import tabulate
+from colorama import Fore, Style, init, Back
+
+# Initialize colorama
+init(autoreset=True)
 
 class Book:
     def __init__(self,name,author,year,publisher):
@@ -42,7 +46,6 @@ class Library:
             if books_df.empty == True:
                 print("Kitap kaydı bulunamadı")
             else:
-                library.printData("books")
                 print(tabulate.tabulate
                     (
                     books_df, headers=["Kayıt No","Kitap Adı", "Yazar","Yıl","Yayıncı","Ödünç?"],
@@ -162,8 +165,14 @@ library = Library()
 
 while True:
 
-    Menu = input("\n0-Kitap Listesi\n1-Üye Listesi\n2-Kitap Ekle\n3-Kitap Sil\n4-Üye Ekle\n5-Üye Sil\n6-Kitap Ödünç Ver\n7-Kitap İade Al\n8-Çıkış\n \nSeçim: ")
-    print("*"*20)
+    Menu = input(
+        f"\n{Back.BLUE}{Fore.WHITE}{Style.BRIGHT}*** MENÜ ***{Style.RESET_ALL}\n\n"
+        f"{Back.BLACK}{Fore.CYAN}0 - Kitap Listesi       {Fore.RESET}| {Fore.CYAN}1 - Üye Listesi\n"
+        f"{Fore.CYAN}2 - Kitap Ekle          {Fore.RESET}| {Fore.CYAN}3 - Kitap Sil\n"
+        f"{Fore.CYAN}4 - Üye Ekle            {Fore.RESET}| {Fore.CYAN}5 - Üye Sil\n"
+        f"{Fore.CYAN}6 - Kitap Ödünç Ver     {Fore.RESET}| {Fore.CYAN}7 - Kitap İade Al\n\n"
+        f"{Back.RED}{Fore.WHITE}8 - Çıkış{Style.RESET_ALL}\n"
+        "\nSeçim: ")
 
     if Menu == "0":
         library.print_table("books")
