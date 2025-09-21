@@ -2,7 +2,7 @@
 # Library Management System
 
 This documentation describes a Python application for managing a library system. 
-The application uses JSON files to handle book and member data and includes the following features:
+The application uses SQLite to handle book and member data and includes the following features:
 
 ## Features
 
